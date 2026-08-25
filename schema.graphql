@@ -1,0 +1,27 @@
+type StockToken {
+  id: ID! # token contract address
+  symbol: String!
+  name: String!
+  decimals: Int!
+  transferCount: BigInt!
+  totalVolume: BigInt!
+  holderCount: Int!
+  firstBlock: BigInt!
+  lastBlock: BigInt!
+}
+
+type TokenBalance {
+  id: ID! # <token address>-<holder address>
+  token: StockToken!
+  account: String! @index
+  balance: BigInt!
+  transferCount: BigInt!
+}
+
+type DailyTokenStat {
+  id: ID! # <token address>-<day index>
+  token: StockToken!
+  day: Int! @index
+  volume: BigInt!
+  transfers: Int!
+}

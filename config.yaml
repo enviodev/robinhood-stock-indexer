@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: robinhood-stock-indexer
+description: Tokenised asset activity on Robinhood Chain (chain 4663)
+
+contracts:
+  # Robinhood's StockFactory deploys every tokenised asset on the chain and
+  # emits Deployed with the new token's address, name and symbol.
+  - name: StockFactory
+    events:
+      - event: "Deployed(bytes32 indexed uid, address stock, string name, string symbol)"
+
+  # No address here. Every instance is discovered from the factory at runtime.
+  - name: StockToken
+    events:
+      - event: "Transfer(address indexed from, address indexed to, uint256 value)"
+
+chains:
+  - id: 4663 # Robinhood Chain. HyperSync is the default data source.
+    start_block: 0 # HyperSync fast-forwards to the factory's first deployment
+    contracts:
+      - name: StockFactory
+        address: "0x4783C67b63dE2B358Ac5951a7D41F47A38F3C046"
+      - name: StockToken
+        # Discover every token from genesis, but only index transfers from a
+        # recent block so a first run finishes in minutes.
+        start_block: 44000000
