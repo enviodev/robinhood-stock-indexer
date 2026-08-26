@@ -1,9 +1,9 @@
 # yaml-language-server: $schema=./node_modules/envio/evm.schema.json
 name: robinhood-stock-indexer
-description: Tokenised asset activity on Robinhood Chain (chain 4663)
+description: Tokenized asset activity on Robinhood Chain (chain 4663)
 
 contracts:
-  # Robinhood's StockFactory deploys every tokenised asset on the chain and
+  # Robinhood's StockFactory deploys every tokenized asset on the chain and
   # emits Deployed with the new token's address, name and symbol.
   - name: StockFactory
     events:

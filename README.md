@@ -1,9 +1,9 @@
 # Robinhood Stock Indexer
 
-A [HyperIndex](https://docs.envio.dev/docs/HyperIndex/overview) indexer for the tokenised
+A [HyperIndex](https://docs.envio.dev/docs/HyperIndex/overview) indexer for the tokenized
 equities and ETFs on [Robinhood Chain](https://docs.robinhood.com/chain) (chain ID `4663`).
 
-It tracks every `Transfer` on all 203 tokenised assets issued on the chain and
+It tracks every `Transfer` on all 203 tokenized assets issued on the chain and
 produces per-token aggregates, per-account net flows, and daily activity, exposed as GraphQL.
 
 ## Requirements
@@ -32,7 +32,7 @@ A GraphQL playground opens on http://localhost:8080.
 
 ## How the token list was found
 
-There is no published token list for these contracts. Every Robinhood tokenised asset is
+There is no published token list for these contracts. Every Robinhood tokenized asset is
 deployed by one factory at `0x4783C67b63dE2B358Ac5951a7D41F47A38F3C046`, which emits a
 creation event carrying the token address, name and symbol. Reading that factory's full
 log history through HyperSync gives all 203 addresses, verified against on-chain

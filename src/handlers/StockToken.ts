@@ -28,7 +28,7 @@ const getDecimals = createEffect(
     }),
 );
 
-// Discover every tokenised asset from the factory instead of hardcoding a list.
+// Discover every tokenized asset from the factory instead of hardcoding a list.
 indexer.contractRegister(
   { contract: "StockFactory", event: "Deployed" },
   async ({ event, context }) => {
