@@ -48,7 +48,7 @@ indexer.onEvent(
       decimals,
       transferCount: 0n,
       totalVolume: 0n,
-      holderCount: 0,
+      activeAccounts: 0,
       firstBlock: BigInt(event.block.number),
       lastBlock: BigInt(event.block.number),
     });
@@ -67,36 +67,32 @@ indexer.onEvent(
     const receiverId = `${tokenId}-${to}`;
     const [token, sender, receiver] = await Promise.all([
       context.StockToken.get(tokenId),
-      from === ZERO ? undefined : context.TokenBalance.get(senderId),
-      to === ZERO ? undefined : context.TokenBalance.get(receiverId),
+      from === ZERO ? undefined : context.TokenFlow.get(senderId),
+      to === ZERO ? undefined : context.TokenFlow.get(receiverId),
     ]);
     if (!token) return; // transfer from a contract the factory never deployed
 
-    let holderDelta = 0;
+    // Both sides can be the same address, so accumulate per account before
+    // writing. A self transfer then nets to zero and counts once, rather than
+    // writing twice and leaving the second write to win.
+    const delta = new Map<string, bigint>();
+    if (from !== ZERO) delta.set(from, (delta.get(from) ?? 0n) - value);
+    if (to !== ZERO) delta.set(to, (delta.get(to) ?? 0n) + value);
 
-    if (from !== ZERO) {
-      const before = sender?.balance ?? 0n;
-      const after = before - value;
-      if (before > 0n && after <= 0n) holderDelta -= 1;
-      context.TokenBalance.set({
-        id: senderId,
-        token_id: tokenId,
-        account: from,
-        balance: after,
-        transferCount: (sender?.transferCount ?? 0n) + 1n,
-      });
-    }
+    // Count an account the first time it appears in the window. This is
+    // countable from partial history, unlike a holder count, which would need
+    // balances from genesis.
+    let newAccounts = 0;
 
-    if (to !== ZERO) {
-      const before = receiver?.balance ?? 0n;
-      const after = before + value;
-      if (before <= 0n && after > 0n) holderDelta += 1;
-      context.TokenBalance.set({
-        id: receiverId,
+    for (const [account, change] of delta) {
+      const existing = account === from ? sender : receiver;
+      if (!existing) newAccounts += 1;
+      context.TokenFlow.set({
+        id: `${tokenId}-${account}`,
         token_id: tokenId,
-        account: to,
-        balance: after,
-        transferCount: (receiver?.transferCount ?? 0n) + 1n,
+        account,
+        netChange: (existing?.netChange ?? 0n) + change,
+        transferCount: (existing?.transferCount ?? 0n) + 1n,
       });
     }
 
@@ -104,7 +100,7 @@ indexer.onEvent(
       ...token,
       transferCount: token.transferCount + 1n,
       totalVolume: token.totalVolume + value,
-      holderCount: token.holderCount + holderDelta,
+      activeAccounts: token.activeAccounts + newAccounts,
       lastBlock: blockNumber,
     });
 

@@ -5,16 +5,18 @@ type StockToken {
   decimals: Int!
   transferCount: BigInt!
   totalVolume: BigInt!
-  holderCount: Int!
+  activeAccounts: Int!
   firstBlock: BigInt!
   lastBlock: BigInt!
 }
 
-type TokenBalance {
-  id: ID! # <token address>-<holder address>
+type TokenFlow {
+  id: ID! # <token address>-<account address>
   token: StockToken!
   account: String! @index
-  balance: BigInt!
+  # Net movement across the indexed window, not a wallet balance. Anything held
+  # before the start block is invisible here, so this can be negative.
+  netChange: BigInt!
   transferCount: BigInt!
 }
 

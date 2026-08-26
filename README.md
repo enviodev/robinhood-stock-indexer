@@ -4,7 +4,7 @@ A [HyperIndex](https://docs.envio.dev/docs/HyperIndex/overview) indexer for the 
 equities and ETFs on [Robinhood Chain](https://docs.robinhood.com/chain) (chain ID `4663`).
 
 It tracks every `Transfer` on all 203 tokenised assets issued on the chain and
-produces per-token aggregates, per-holder balances, and daily activity, exposed as GraphQL.
+produces per-token aggregates, per-account net flows, and daily activity, exposed as GraphQL.
 
 ## Requirements
 
@@ -26,8 +26,8 @@ A GraphQL playground opens on http://localhost:8080.
 
 | Entity | What it holds |
 | --- | --- |
-| `StockToken` | Per-token symbol, name, decimals, transfer count, total volume, holder count |
-| `TokenBalance` | Balance and transfer count per holder, per token |
+| `StockToken` | Per-token symbol, name, decimals, transfer count, total volume, active account count |
+| `TokenFlow` | Net movement and transfer count per account, per token |
 | `DailyTokenStat` | Daily transfer count and volume per token |
 
 ## How the token list was found
@@ -44,5 +44,5 @@ log history through HyperSync gives all 203 addresses, verified against on-chain
 - Token metadata is read once per token through the
   [Effect API](https://docs.envio.dev/docs/HyperIndex/effect-api), which batches, memoises
   and caches the call so it is not repeated per event.
-- The schema stores aggregates and balances rather than one row per transfer, which keeps
-  the dataset bounded.
+- The schema stores aggregates rather than one row per transfer, which keeps the dataset
+  bounded.
